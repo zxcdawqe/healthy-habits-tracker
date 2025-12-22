@@ -4,12 +4,38 @@
 
 <div class="container">
 
-  <mat-card class="habit-card" *ngFor="let habit of habits">
-    <input
-      class="habit-title"
-      [value]="habit.title"
-      (change)="updateTitle(habit, $event)"
-    />
+  <mat-card
+    class="habit-card"
+    [class.main-habit]="habit.isMain"
+    *ngFor="let habit of habits"
+  >
+
+    <div class="habit-header">
+
+      <div class="title-wrapper">
+        <input
+          class="habit-title"
+          [value]="habit.title"
+          (change)="updateTitle(habit, $event)"
+        />
+
+        <span
+          *ngIf="habit.isMain"
+          class="main-badge"
+        >
+          основная
+        </span>
+      </div>
+
+      <button
+        *ngIf="!habit.isMain"
+        class="delete-btn"
+        (click)="removeHabit(habit)"
+      >
+        ✕
+      </button>
+
+    </div>
 
     <div class="grid">
       <div
@@ -21,6 +47,7 @@
         {{ d.slice(8,10) }}.{{ d.slice(5,7) }}
       </div>
     </div>
+
   </mat-card>
 
   <mat-card class="add-card">
@@ -28,7 +55,11 @@
       placeholder="Дополнительная привычка"
       [(ngModel)]="newHabitTitle"
     />
-    <button mat-raised-button color="primary" (click)="addHabit()">
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="addHabit()"
+    >
       Добавить
     </button>
   </mat-card>

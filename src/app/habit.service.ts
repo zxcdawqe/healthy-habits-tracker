@@ -61,4 +61,10 @@ export class HabitService {
     this.save(habits);
     return habits;
   }
+
+  removeHabit(id: string): Habit[] {
+    const habits = this.getAll().filter(h => h.id !== id);
+    this.save(habits);
+    return habits;
+  }
 }
