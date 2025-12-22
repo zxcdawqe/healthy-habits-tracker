@@ -4,9 +4,19 @@
 
 <div class="container">
 
-  <mat-card class="streak-card">
-  <b>Серия 3/3 основных:</b> {{ mainStreak }} дн.
-  </mat-card>
+<mat-card class="streak-card">
+  <b>Серия 3/3 основных:</b> {{ mainStreak }} / 7
+</mat-card>
+
+<mat-card
+  class="legend-card"
+  *ngIf="mainStreak === 7"
+>
+  <div class="legend-title">Ты ваще легенда!!! 🔥🔥🔥</div>
+  <div class="legend-quote">
+    Помни: «Дисциплина — это мост между целями и достижениями»
+  </div>
+</mat-card>
 
   <mat-card
     class="habit-card"
