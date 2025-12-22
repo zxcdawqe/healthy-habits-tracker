@@ -1,9 +1,32 @@
 .container {
   padding: 16px;
-  max-width: 600px;
+  max-width: 500px;
   margin: 0 auto;
 }
 
-.full-width {
-  width: 100%;
+.subtitle {
+  margin: 8px 0;
+  opacity: 0.7;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.day {
+  padding: 12px 0;
+  text-align: center;
+  border-radius: 8px;
+  background: #e0e0e0;
+  cursor: pointer;
+  user-select: none;
+  font-weight: 500;
+}
+
+.day.done {
+  background: #4caf50;
+  color: white;
 }

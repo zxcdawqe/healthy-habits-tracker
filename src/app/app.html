@@ -4,32 +4,19 @@
 
 <div class="container">
   <mat-card>
-    <mat-card-title>Добавить привычку</mat-card-title>
+    <mat-card-title>{{ habit.title }}</mat-card-title>
 
-    <mat-card-content>
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Название привычки</mat-label>
-        <input
-          matInput
-          [formControl]="habitControl"
-          placeholder="Например: Чтение"
-        />
-        <mat-error *ngIf="habitControl.hasError('required')">
-          Название обязательно
-        </mat-error>
-        <mat-error *ngIf="habitControl.hasError('minlength')">
-          Минимум 3 символа
-        </mat-error>
-      </mat-form-field>
+    <p class="subtitle">Текущая неделя</p>
 
-      <button
-        mat-raised-button
-        color="primary"
-        (click)="addHabit()"
-        [disabled]="habitControl.invalid"
+    <div class="grid">
+      <div
+        class="day"
+        *ngFor="let d of weekDays"
+        [class.done]="isDone(d)"
+        (click)="toggle(d)"
       >
-        Добавить
-      </button>
-    </mat-card-content>
+        {{ d.slice(8, 10) }}.{{ d.slice(5, 7) }}
+      </div>
+    </div>
   </mat-card>
 </div>
