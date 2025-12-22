@@ -1,16 +1,35 @@
 <mat-toolbar color="primary">
   <span>Трекер полезных привычек</span>
-  <span class="spacer"></span>
-  <button mat-icon-button aria-label="Add">
-    <mat-icon>add</mat-icon>
-  </button>
 </mat-toolbar>
 
 <div class="container">
   <mat-card>
-    <mat-card-title>Мои привычки</mat-card-title>
+    <mat-card-title>Добавить привычку</mat-card-title>
+
     <mat-card-content>
-      Здесь будет список привычек и трекер выполнения
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Название привычки</mat-label>
+        <input
+          matInput
+          [formControl]="habitControl"
+          placeholder="Например: Чтение"
+        />
+        <mat-error *ngIf="habitControl.hasError('required')">
+          Название обязательно
+        </mat-error>
+        <mat-error *ngIf="habitControl.hasError('minlength')">
+          Минимум 3 символа
+        </mat-error>
+      </mat-form-field>
+
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="addHabit()"
+        [disabled]="habitControl.invalid"
+      >
+        Добавить
+      </button>
     </mat-card-content>
   </mat-card>
 </div>
