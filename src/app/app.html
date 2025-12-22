@@ -3,20 +3,34 @@
 </mat-toolbar>
 
 <div class="container">
-  <mat-card>
-    <mat-card-title>{{ habit.title }}</mat-card-title>
 
-    <p class="subtitle">Текущая неделя</p>
+  <mat-card class="habit-card" *ngFor="let habit of habits">
+    <input
+      class="habit-title"
+      [value]="habit.title"
+      (change)="updateTitle(habit, $event)"
+    />
 
     <div class="grid">
       <div
         class="day"
         *ngFor="let d of weekDays"
-        [class.done]="isDone(d)"
-        (click)="toggle(d)"
+        [class.done]="isDone(habit, d)"
+        (click)="toggle(habit.id, d)"
       >
-        {{ d.slice(8, 10) }}.{{ d.slice(5, 7) }}
+        {{ d.slice(8,10) }}.{{ d.slice(5,7) }}
       </div>
     </div>
   </mat-card>
+
+  <mat-card class="add-card">
+    <input
+      placeholder="Дополнительная привычка"
+      [(ngModel)]="newHabitTitle"
+    />
+    <button mat-raised-button color="primary" (click)="addHabit()">
+      Добавить
+    </button>
+  </mat-card>
+
 </div>
