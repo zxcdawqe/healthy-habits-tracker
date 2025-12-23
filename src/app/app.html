@@ -1,11 +1,15 @@
 <mat-toolbar color="primary">
-  <span>Трекер полезных привычек</span>
+  <span class = "app-title">Трекер полезных привычек</span>
 </mat-toolbar>
 
 <div class="container">
 
 <mat-card class="streak-card">
   <b>Серия 3/3 основных:</b> {{ mainStreak }} / 7
+
+  <div class = "streak-mesage">
+    {{getStreakMessage()}}
+  </div>
 </mat-card>
 
 <mat-card
@@ -66,6 +70,17 @@
         {{ d.slice(8,10) }}.{{ d.slice(5,7) }}
       </div>
     </div>
+
+<div class="progress">
+  <div
+    class="progress-bar"
+    [style.width.%]="(getWeekDoneCount(habit) / 7) * 100"
+  ></div>
+</div>
+
+<div class="progress-text">
+  {{ getWeekDoneCount(habit) }} / 7
+</div>
 
   </mat-card>
 

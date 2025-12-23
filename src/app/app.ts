@@ -123,4 +123,24 @@ private recomputeMainStreak(): void {
     this.habits = this.habitService.removeHabit(habit.id);
     this.recomputeMainStreak();
   }
+
+  getWeekDoneCount(habit: any): number {
+  return this.weekDays.filter(d =>
+    habit.completedDates.includes(d)
+  ).length;
+  }
+
+  getStreakMessage(): string {
+  if (this.mainStreak === 7) {
+    return 'Ты ваще легенда!!! 🔥🔥🔥';
+  }
+  if (this.mainStreak >= 5) {
+    return 'Отличный темп, не сбавляй 💪💪💪';
+  }
+  if (this.mainStreak >= 3) {
+    return 'Хорошее начало 👍👍👍';
+  }
+  return 'Начни сегодня - и завтра будет легче';
+}
+
 }
