@@ -105,3 +105,14 @@
   font-style: italic;
   font-size: 14px;
 }
+
+.legend-image {
+  width: 100%;
+  max-height: 550px;
+  max-width: 550px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  display: block;
+  margin: 0 auto 12px auto;
+}
