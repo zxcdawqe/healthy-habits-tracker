@@ -1,7 +1,9 @@
 <div *ngIf="!auth.isLoggedIn()" class="login-page">
 
   <mat-card class="login-card">
-    <h3>Вход в личный кабинет</h3>
+    <h3>
+      {{ isRegisterMode ? 'Создание аккаунта' : 'Вход в личный кабинет' }}
+    </h3>
 
     <form [formGroup]="loginForm" class="login-form">
       <input
@@ -21,7 +23,21 @@
       color="primary"
       (click)="login()"
     >
-      Войти
+      {{ isRegisterMode ? 'Зарегистрироваться' : 'Войти' }}
+    </button>
+
+    <p class="auth-error" *ngIf="authError">
+      {{ authError }}
+    </p>
+
+    <button
+      mat-button
+      class="switch-mode"
+      (click)="isRegisterMode = !isRegisterMode"
+    >
+      {{ isRegisterMode
+        ? 'Я уже смешарик'
+        : 'Создать аккаунт' }}
     </button>
   </mat-card>
 

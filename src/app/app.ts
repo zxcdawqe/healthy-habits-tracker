@@ -1,6 +1,12 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
+import {
+  FormsModule,
+  ReactiveFormsModule,
+  FormGroup,
+  FormControl,
+  Validators
+} from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -25,9 +31,12 @@ import { AuthService } from './auth.service';
 })
 export class AppComponent {
 
+  isRegisterMode = false;
+  authError = '';
+
   loginForm = new FormGroup({
-    login: new FormControl('', Validators.required),
-    password: new FormControl('', Validators.required)
+    login: new FormControl('', { nonNullable: true, validators: Validators.required }),
+    password: new FormControl('', { nonNullable: true, validators: Validators.required })
   });
 
   habits: Habit[] = [];
@@ -46,15 +55,33 @@ export class AppComponent {
   }
 
   login(): void {
-    const { login, password } = this.loginForm.value;
-    if (!login || !password) return;
+    const login = this.loginForm.value.login;
+    const password = this.loginForm.value.password;
 
-    this.auth.login(login, password);
+    if (!login || !password) {
+      this.authError = 'Введите логин и пароль';
+      return;
+    }
+
+    const ok = this.isRegisterMode
+      ? this.auth.register(login, password)
+      : this.auth.login(login, password);
+
+    if (!ok) {
+      this.authError = this.isRegisterMode
+        ? 'Логин уже существует'
+        : 'Неверный логин или пароль';
+      return;
+    }
+
+    this.authError = '';
     this.initUserData();
   }
 
   logout(): void {
     this.auth.logout();
+    this.isRegisterMode = false;
+    this.authError = '';
     this.habits = [];
     this.weekDays = [];
     this.mainStreak = 0;
