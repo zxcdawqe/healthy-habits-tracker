@@ -1,101 +1,152 @@
-<mat-toolbar color="primary">
-  <span class = "app-title">Трекер полезных привычек</span>
-</mat-toolbar>
+<div *ngIf="!auth.isLoggedIn()" class="login-page">
 
-<div class="container">
+  <mat-card class="login-card">
+    <h3>Вход в личный кабинет</h3>
 
-<mat-card class="streak-card">
-  <b>Серия 3/3 основных:</b> {{ mainStreak }} / 7
+    <form [formGroup]="loginForm" class="login-form">
+      <input
+        placeholder="Логин"
+        formControlName="login"
+      />
 
-  <div class = "streak-mesage">
-    {{getStreakMessage()}}
-  </div>
-</mat-card>
+      <input
+        type="password"
+        placeholder="Пароль"
+        formControlName="password"
+      />
+    </form>
 
-<mat-card
-  class="legend-card"
-  *ngIf="mainStreak === 7"
->
-  <img
-    src="assets/1.png"
-    class="legend-image"
-  />
-
-  <div class="legend-title">Ты ваще легенда!!! 🔥🔥🔥</div>
-  <div class="legend-quote">
-    Помни: «Дисциплина — это мост между целями и достижениями»
-  </div>
-</mat-card>
-
-  <mat-card
-    class="habit-card"
-    [class.main-habit]="habit.isMain"
-    *ngFor="let habit of habits"
-  >
-
-    <div class="habit-header">
-
-      <div class="title-wrapper">
-        <input
-          class="habit-title"
-          [value]="habit.title"
-          (change)="updateTitle(habit, $event)"
-        />
-
-        <span
-          *ngIf="habit.isMain"
-          class="main-badge"
-        >
-          основная
-        </span>
-      </div>
-
-      <button
-        *ngIf="!habit.isMain"
-        class="delete-btn"
-        (click)="removeHabit(habit)"
-      >
-        ✕
-      </button>
-
-    </div>
-
-    <div class="grid">
-      <div
-        class="day"
-        *ngFor="let d of weekDays"
-        [class.done]="isDone(habit, d)"
-        (click)="toggle(habit.id, d)"
-      >
-        {{ d.slice(8,10) }}.{{ d.slice(5,7) }}
-      </div>
-    </div>
-
-<div class="progress">
-  <div
-    class="progress-bar"
-    [style.width.%]="(getWeekDoneCount(habit) / 7) * 100"
-  ></div>
-</div>
-
-<div class="progress-text">
-  {{ getWeekDoneCount(habit) }} / 7
-</div>
-
-  </mat-card>
-
-  <mat-card class="add-card">
-    <input
-      placeholder="Дополнительная привычка"
-      [(ngModel)]="newHabitTitle"
-    />
     <button
       mat-raised-button
       color="primary"
-      (click)="addHabit()"
+      (click)="login()"
     >
-      Добавить
+      Войти
     </button>
   </mat-card>
 
+</div>
+
+<div *ngIf="auth.isLoggedIn()">
+
+  <mat-toolbar color="primary" class="toolbar">
+
+    <span class="app-title centered">
+      Трекер полезных привычек
+    </span>
+
+    <div class="profile-box">
+      <span class="profile-name">
+        Профиль: {{ auth.getUser()?.login }}
+      </span>
+
+      <button
+        mat-button
+        class="logout-btn"
+        (click)="logout()"
+      >
+        Выйти
+      </button>
+    </div>
+
+  </mat-toolbar>
+
+  <div class="container">
+
+    <mat-card class="streak-card">
+      <b>Серия 3/3 основных:</b> {{ mainStreak }} / 7
+
+      <div class="streak-message">
+        {{ getStreakMessage() }}
+      </div>
+    </mat-card>
+
+    <mat-card
+      class="legend-card"
+      *ngIf="mainStreak === 7"
+    >
+      <img
+        src="assets/1.png"
+        class="legend-image"
+      />
+
+      <div class="legend-title">Ты ваще легенда!!! 🔥🔥🔥</div>
+      <div class="legend-quote">
+        Помни: «Дисциплина — это мост между целями и достижениями»
+      </div>
+    </mat-card>
+
+    <mat-card
+      class="habit-card"
+      [class.main-habit]="habit.isMain"
+      *ngFor="let habit of habits"
+    >
+
+      <div class="habit-header">
+
+        <div class="title-wrapper">
+          <input
+            class="habit-title"
+            [value]="habit.title"
+            (change)="updateTitle(habit, $event)"
+          />
+
+          <span
+            *ngIf="habit.isMain"
+            class="main-badge"
+          >
+            основная
+          </span>
+        </div>
+
+        <button
+          *ngIf="!habit.isMain"
+          class="delete-btn"
+          (click)="removeHabit(habit)"
+        >
+          ✕
+        </button>
+
+      </div>
+
+      <div class="grid">
+        <div
+          class="day"
+          *ngFor="let d of weekDays"
+          [class.done]="isDone(habit, d)"
+          (click)="toggle(habit.id, d)"
+        >
+          {{ d.slice(8,10) }}.{{ d.slice(5,7) }}
+        </div>
+      </div>
+
+      <div class="progress">
+        <div
+          class="progress-bar"
+          [style.width.%]="(getWeekDoneCount(habit) / 7) * 100"
+        ></div>
+      </div>
+
+      <div class="progress-text">
+        {{ getWeekDoneCount(habit) }} / 7
+      </div>
+
+    </mat-card>
+
+    <mat-card class="add-card">
+      <input
+        placeholder="Дополнительная привычка"
+        [(ngModel)]="newHabitTitle"
+      />
+
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="addHabit()"
+      >
+        Добавить
+      </button>
+    </mat-card>
+
+  </div>
 </div>

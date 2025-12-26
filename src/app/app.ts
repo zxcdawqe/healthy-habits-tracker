@@ -1,11 +1,13 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
+
 import { HabitService } from './habit.service';
 import { Habit } from './habit.model';
+import { AuthService } from './auth.service';
 
 @Component({
   selector: 'app-root',
@@ -13,6 +15,7 @@ import { Habit } from './habit.model';
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     MatToolbarModule,
     MatCardModule,
     MatButtonModule
@@ -22,67 +25,48 @@ import { Habit } from './habit.model';
 })
 export class AppComponent {
 
+  loginForm = new FormGroup({
+    login: new FormControl('', Validators.required),
+    password: new FormControl('', Validators.required)
+  });
+
   habits: Habit[] = [];
   weekDays: string[] = [];
   newHabitTitle = '';
 
-  mainStreak = 0; // серия по 3/3 основным
+  mainStreak = 0;
 
-  constructor(private habitService: HabitService) {
+  constructor(
+    public auth: AuthService,
+    private habitService: HabitService
+  ) {
+    if (this.auth.isLoggedIn()) {
+      this.initUserData();
+    }
+  }
+
+  login(): void {
+    const { login, password } = this.loginForm.value;
+    if (!login || !password) return;
+
+    this.auth.login(login, password);
+    this.initUserData();
+  }
+
+  logout(): void {
+    this.auth.logout();
+    this.habits = [];
+    this.weekDays = [];
+    this.mainStreak = 0;
+    this.loginForm.reset();
+  }
+
+  private initUserData(): void {
     this.habits = this.habitService.initIfEmpty();
     this.weekDays = this.generateWeek();
     this.recomputeMainStreak();
   }
 
-  private todayISO(): string {
-    // тот же формат, что и в completedDates: YYYY-MM-DD
-    return new Date().toISOString().slice(0, 10);
-  }
-
-  private addDaysISO(iso: string, deltaDays: number): string {
-    const d = new Date(iso + 'T00:00:00.000Z');
-    d.setUTCDate(d.getUTCDate() + deltaDays);
-    return d.toISOString().slice(0, 10);
-  }
-
-  // дни, когда выполнены все основные привычки
-  private getAllMainDoneDates(): Set<string> {
-    const mains = this.habits.filter(h => h.isMain);
-
-    // если вдруг основных меньше 3 — считаем streak = 0
-    if (mains.length < 3) return new Set();
-
-    // пересечение множеств completedDates всех main
-    let intersection = new Set<string>(mains[0].completedDates ?? []);
-
-    for (let i = 1; i < mains.length; i++) {
-      const s = new Set<string>(mains[i].completedDates ?? []);
-      intersection = new Set([...intersection].filter(x => s.has(x)));
-    }
-
-    return intersection;
-  }
-
-private recomputeMainStreak(): void {
-  const mainHabits = this.habits.filter(h => h.isMain);
-
-  if (mainHabits.length < 3) {
-    this.mainStreak = 0;
-    return;
-  }
-
-  let count = 0;
-
-  for (const day of this.weekDays) {
-    const allDone = mainHabits.every(h =>
-      (h.completedDates ?? []).includes(day)
-    );
-
-    if (allDone) count++;
-  }
-
-  this.mainStreak = count;
-}
   generateWeek(): string[] {
     const days: string[] = [];
     const today = new Date();
@@ -98,7 +82,7 @@ private recomputeMainStreak(): void {
 
   toggle(habitId: string, date: string): void {
     this.habits = this.habitService.toggleDay(habitId, date);
-    this.recomputeMainStreak(); // обновляем streak после клика
+    this.recomputeMainStreak();
   }
 
   isDone(habit: Habit, date: string): boolean {
@@ -109,7 +93,6 @@ private recomputeMainStreak(): void {
     if (!this.newHabitTitle.trim()) return;
     this.habits = this.habitService.addHabit(this.newHabitTitle.trim());
     this.newHabitTitle = '';
-    // streak не зависит от дополнительных, но пусть будет актуален
     this.recomputeMainStreak();
   }
 
@@ -124,23 +107,42 @@ private recomputeMainStreak(): void {
     this.recomputeMainStreak();
   }
 
-  getWeekDoneCount(habit: any): number {
-  return this.weekDays.filter(d =>
-    habit.completedDates.includes(d)
-  ).length;
+  getWeekDoneCount(habit: Habit): number {
+    return this.weekDays.filter(d =>
+      (habit.completedDates ?? []).includes(d)
+    ).length;
+  }
+
+  private recomputeMainStreak(): void {
+    const mainHabits = this.habits.filter(h => h.isMain);
+
+    if (mainHabits.length < 3) {
+      this.mainStreak = 0;
+      return;
+    }
+
+    let count = 0;
+
+    for (const day of this.weekDays) {
+      const allDone = mainHabits.every(h =>
+        (h.completedDates ?? []).includes(day)
+      );
+      if (allDone) count++;
+    }
+
+    this.mainStreak = count;
   }
 
   getStreakMessage(): string {
-  if (this.mainStreak === 7) {
-    return 'Ты ваще легенда!!! 🔥🔥🔥';
+    if (this.mainStreak === 7) {
+      return 'Ты ваще легенда!!! 🔥🔥🔥';
+    }
+    if (this.mainStreak >= 5) {
+      return 'Отличный темп, не сбавляй 💪💪💪';
+    }
+    if (this.mainStreak >= 3) {
+      return 'Хорошее начало 👍👍👍';
+    }
+    return 'Начни сегодня — и завтра будет легче';
   }
-  if (this.mainStreak >= 5) {
-    return 'Отличный темп, не сбавляй 💪💪💪';
-  }
-  if (this.mainStreak >= 3) {
-    return 'Хорошее начало 👍👍👍';
-  }
-  return 'Начни сегодня - и завтра будет легче';
-}
-
 }

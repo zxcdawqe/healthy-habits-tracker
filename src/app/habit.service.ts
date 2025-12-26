@@ -1,18 +1,24 @@
 import { Injectable } from '@angular/core';
 import { Habit } from './habit.model';
-
-const STORAGE_KEY = 'habits';
+import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class HabitService {
 
+  constructor(private auth: AuthService) {}
+
+  private storageKey(): string {
+    const user = this.auth.getUser();
+    return user ? `habits_${user.login}` : 'habits_guest';
+  }
+
   getAll(): Habit[] {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(this.storageKey());
     return raw ? JSON.parse(raw) : [];
   }
 
   save(habits: Habit[]): void {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(habits));
+    localStorage.setItem(this.storageKey(), JSON.stringify(habits));
   }
 
   initIfEmpty(): Habit[] {
@@ -20,9 +26,24 @@ export class HabitService {
     if (habits.length > 0) return habits;
 
     const initial: Habit[] = [
-      { id: crypto.randomUUID(), title: 'Зарядка утром', completedDates: [], isMain: true },
-      { id: crypto.randomUUID(), title: 'Чтение', completedDates: [], isMain: true },
-      { id: crypto.randomUUID(), title: '5k шагов', completedDates: [], isMain: true }
+      {
+        id: crypto.randomUUID(),
+        title: 'Зарядка утром',
+        completedDates: [],
+        isMain: true
+      },
+      {
+        id: crypto.randomUUID(),
+        title: 'Чтение',
+        completedDates: [],
+        isMain: true
+      },
+      {
+        id: crypto.randomUUID(),
+        title: '5k шагов',
+        completedDates: [],
+        isMain: true
+      }
     ];
 
     this.save(initial);
@@ -35,8 +56,13 @@ export class HabitService {
     if (!habit) return habits;
 
     habit.completedDates ??= [];
-    const i = habit.completedDates.indexOf(date);
-    i >= 0 ? habit.completedDates.splice(i, 1) : habit.completedDates.push(date);
+    const index = habit.completedDates.indexOf(date);
+
+    if (index >= 0) {
+      habit.completedDates.splice(index, 1);
+    } else {
+      habit.completedDates.push(date);
+    }
 
     this.save(habits);
     return habits;
@@ -44,12 +70,14 @@ export class HabitService {
 
   addHabit(title: string): Habit[] {
     const habits = this.getAll();
+
     habits.push({
       id: crypto.randomUUID(),
       title,
       completedDates: [],
       isMain: false
     });
+
     this.save(habits);
     return habits;
   }
@@ -57,7 +85,11 @@ export class HabitService {
   updateTitle(id: string, title: string): Habit[] {
     const habits = this.getAll();
     const habit = habits.find(h => h.id === id);
-    if (habit) habit.title = title;
+
+    if (habit) {
+      habit.title = title;
+    }
+
     this.save(habits);
     return habits;
   }
